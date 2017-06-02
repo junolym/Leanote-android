@@ -69,6 +69,7 @@
     <string name="untitled">未命名</string>
     <string name="use_custom_host">使用自定义服务器</string>
     <string name="use_leanote_host">使用Leanote.com</string>
+    <string name="disable_ssl_check">不检查SSL证书（不安全）</string>
     <string name="user_name">用户名</string>
     <string name="version">版本</string>
     <string name="yes">是</string>

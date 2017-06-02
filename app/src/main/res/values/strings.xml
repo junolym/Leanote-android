@@ -35,6 +35,7 @@
     <string name="time_yesterday">Yesterday %s</string>
     <string name="use_leanote_host">Use Leanote.com</string>
     <string name="use_custom_host">Use custom host</string>
+    <string name="disable_ssl_check">Disable SSL check (unsafe)</string>
     <string name="public_note">Public note</string>
     <string name="notebook">Notebook</string>
     <string name="tags">Tags</string>

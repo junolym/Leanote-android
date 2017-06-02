@@ -9,8 +9,17 @@ import org.houxg.leamonax.network.api.AuthApi;
 import org.houxg.leamonax.network.api.NoteApi;
 import org.houxg.leamonax.network.api.NotebookApi;
 import org.houxg.leamonax.network.api.UserApi;
+import org.houxg.leamonax.utils.SharedPreferenceUtils;
 
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -23,6 +32,8 @@ import retrofit2.Retrofit;
 public class ApiProvider {
 
     private Retrofit mApiRetrofit;
+
+    private static final String DISABLE_SSL_CHECK = "disable_ssl_check";
 
     private static class SingletonHolder {
         private final static ApiProvider INSTANCE = new ApiProvider();
@@ -40,8 +51,30 @@ public class ApiProvider {
     }
 
     public void init(String host) {
-        OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .addNetworkInterceptor(new Interceptor() {
+        OkHttpClient.Builder builder = new OkHttpClient.Builder();
+
+//        if (SharedPreferenceUtils.read(SharedPreferenceUtils.CONFIG, DISABLE_SSL_CHECK, false)) {
+            X509TrustManager tm = new X509TrustManager() {
+                public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                }
+
+                public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                }
+
+                public X509Certificate[] getAcceptedIssuers() {
+                    return null;
+                }
+            };
+            try {
+                SSLContext sslContext = SSLContext.getInstance("TLS");
+                sslContext.init(null, new TrustManager[] { tm }, null);
+                builder.sslSocketFactory(sslContext.getSocketFactory(), tm);
+            } catch(Exception e) {
+                XLog.e(e.getMessage());
+            }
+//        }
+
+        builder.addNetworkInterceptor(new Interceptor() {
                     @Override
                     public Response intercept(Chain chain) throws IOException {
                         Request request = chain.request();

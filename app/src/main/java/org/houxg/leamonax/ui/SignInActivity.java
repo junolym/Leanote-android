@@ -1,6 +1,5 @@
 package org.houxg.leamonax.ui;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,6 +8,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,12 +20,14 @@ import org.houxg.leamonax.network.ApiProvider;
 import org.houxg.leamonax.network.LeaFailure;
 import org.houxg.leamonax.service.AccountService;
 import org.houxg.leamonax.utils.OpenUtils;
+import org.houxg.leamonax.utils.SharedPreferenceUtils;
 import org.houxg.leamonax.utils.ToastUtils;
 
 import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnCheckedChanged;
 import butterknife.OnClick;
 import rx.Observable;
 import rx.Observer;
@@ -47,6 +49,8 @@ public class SignInActivity extends BaseActivity implements TextWatcher {
     private static final String EXT_HOST = "ext_host";
     private static final String EXT_ACTION_PANEL_OFFSET_Y = "ext_host_et_height";
 
+    private static final String DISABLE_SSL_CHECK = "disable_ssl_check";
+
     @BindView(R.id.et_email)
     EditText mEmailEt;
     @BindView(R.id.et_password)
@@ -59,6 +63,8 @@ public class SignInActivity extends BaseActivity implements TextWatcher {
     TextView mCustomHostBtn;
     @BindView(R.id.et_custom_host)
     EditText mHostEt;
+    @BindView(R.id.cb_disable_ssl_check)
+    CheckBox mSSLCb;
     @BindView(R.id.ll_action)
     View mActionPanel;
     @BindView(R.id.progress_sign_in)
@@ -149,6 +155,11 @@ public class SignInActivity extends BaseActivity implements TextWatcher {
                     .setDuration(200)
                     .setInterpolator(new AccelerateDecelerateInterpolator())
                     .start();
+            mSSLCb.animate()
+                    .scaleY(1)
+                    .setDuration(200)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .start();
             mActionPanel.animate()
                     .yBy(mHostEt.getHeight())
                     .setDuration(200)
@@ -167,6 +178,12 @@ public class SignInActivity extends BaseActivity implements TextWatcher {
                     .setDuration(200)
                     .setInterpolator(new AccelerateDecelerateInterpolator())
                     .start();
+            mSSLCb.animate()
+                    .scaleY(0)
+                    .setDuration(200)
+                    .setInterpolator(new AccelerateDecelerateInterpolator())
+                    .start();
+            mSSLCb.setChecked(false);
             mActionPanel.animate()
                     .yBy(-mHostEt.getHeight())
                     .setDuration(200)
@@ -179,6 +196,11 @@ public class SignInActivity extends BaseActivity implements TextWatcher {
                     })
                     .start();
         }
+    }
+
+    @OnCheckedChanged(R.id.cb_disable_ssl_check)
+    void sslCheckToggle() {
+        SharedPreferenceUtils.write(SharedPreferenceUtils.CONFIG, DISABLE_SSL_CHECK, mSSLCb.isChecked());
     }
 
     private String getHost() {
